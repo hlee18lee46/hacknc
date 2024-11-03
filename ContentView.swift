@@ -28,17 +28,16 @@ struct MainTabView: View {
                     Image(systemName: "list.bullet")  // Icon for Accounts tab
                     Text("Accounts")
                 }
+            QuizView()
+                .tabItem {
+                    Image(systemName: "questionmark.circle")  // Icon for Accounts tab
+                    Text("Quiz")
+                }
             
             AutoView()
                 .tabItem {
-                    Image(systemName: "car.fill")  // Icon for Auto tab
-                    Text("Auto")
-                }
-            
-            HouseView()
-                .tabItem {
-                    Image(systemName: "house.fill")  // Icon for House tab
-                    Text("House")
+                    Image(systemName: "dollarsign.circle.fill")  // Icon for Auto tab
+                    Text("Loan")
                 }
             
             DashboardView()
@@ -60,15 +59,13 @@ struct PlaidView: View {
     }
 }
 */
-
+/*
 struct AutoView: View {
     var body: some View {
-        Text("Auto Screen")
-            .font(.largeTitle)
-            .foregroundColor(.green)
+        Text("AutoView Content")
     }
 }
-
+*/
 struct HouseView: View {
     var body: some View {
         Text("House Screen")
