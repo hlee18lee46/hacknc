@@ -3,7 +3,59 @@ import Combine
 
 class PlaidViewModel: ObservableObject {
     @Published var balanceInfo: String = "Balances will appear here."
-    @Published var transactions: [[String: Any]] = []  // New property to store transactions
+    @Published var transactions: [[String: Any]] = []
+    @Published var accounts: [[String: Any]] = []
+    
+    func fetchAccounts() {
+        guard let url = URL(string: "https://2e03-152-23-102-253.ngrok-free.app/get_accounts") else {
+            print("Invalid URL for getting accounts")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            if let error = error {
+                print("Error fetching accounts: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let accounts = json["accounts"] as? [[String: Any]] else {
+                print("Failed to parse accounts data")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self?.accounts = accounts
+                self?.updateBalanceInfo(accounts: accounts)
+            }
+        }.resume()
+    }
+    
+    private func updateBalanceInfo(accounts: [[String: Any]]) {
+        var totalAssets = 0.0
+        var totalLiabilities = 0.0
+        
+        for account in accounts {
+            if let balances = account["balances"] as? [String: Any],
+               let current = balances["current"] as? Double {
+                if let category = account["category"] as? String {
+                    if category == "asset" {
+                        totalAssets += current
+                    } else {
+                        totalLiabilities += current
+                    }
+                }
+            }
+        }
+        
+        balanceInfo = """
+        Assets: $\(String(format: "%.2f", totalAssets))
+        Liabilities: $\(String(format: "%.2f", totalLiabilities))
+        Net Worth: $\(String(format: "%.2f", totalAssets - totalLiabilities))
+        Total Accounts: \(accounts.count)
+        """
+    }
     
     func exchangePublicToken(publicToken: String, completion: @escaping (String?) -> Void) {
         guard let url = URL(string: "https://2e03-152-23-102-253.ngrok-free.app/exchange_public_token") else {
@@ -73,5 +125,15 @@ class PlaidViewModel: ObservableObject {
             print("Transactions data received: \(transactions)")
             completion(transactions)
         }.resume()
+    }
+    private func determineAccountCategory(type: String) -> String {
+        switch type {
+        case "loan", "credit":
+            return "liability"
+        case "depository", "investment":
+            return "asset"
+        default:
+            return "asset"
+        }
     }
 }

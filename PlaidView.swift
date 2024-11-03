@@ -25,7 +25,7 @@ struct PlaidView: View {
 
 
             Button(action: {
-                bankInfo = "Fetching link token..."
+                bankInfo = ""
                 fetchLinkToken { linkToken in
                     guard let token = linkToken else {
                         bankInfo = "Failed to fetch link token"
@@ -98,7 +98,7 @@ struct PlaidView: View {
         DispatchQueue.main.async {
             var linkConfiguration = LinkTokenConfiguration(token: linkToken) { success in
                 print("onSuccess: public-token: \(success.publicToken) metadata: \(success.metadata)")
-                self.bankInfo = "Successfully linked account! Public token: \(success.publicToken)"
+                self.bankInfo = "Successfully linked account!" //Public token: \(success.publicToken)"
                 // Additional success logic...
             }
 
